@@ -9,11 +9,15 @@ import time
 
 import numpy as np
 import torch
-from loader import get_meta_test_loader, get_meta_train_loader
 from torch import optim
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from tqdm import tqdm
-from utils import (
+
+from metad2a.MetaD2A_nas_bench_201.loader import (
+    get_meta_test_loader,
+    get_meta_train_loader,
+)
+from metad2a.MetaD2A_nas_bench_201.utils import (
     Accumulator,
     Log,
     decode_igraph_to_NAS_BENCH_201_string,
@@ -96,6 +100,7 @@ class Generator:
         self.mtrlog.save_time_log()
 
     def meta_train_epoch(self, epoch):
+        # trains the model to reconstruct a graph from
         self.model.to(self.device)
         self.model.train()
         train_loss, recon_loss, kld_loss = 0, 0, 0
@@ -103,7 +108,10 @@ class Generator:
         self.mtrloader.dataset.set_mode("train")
         for x, g, acc in tqdm(self.mtrloader):
             self.optimizer.zero_grad()
+
+            # get set encoding
             mu, logvar = self.model.set_encode(x.to(self.device))
+
             loss, recon, kld = self.model.loss(mu, logvar, g)
             loss.backward()
             self.optimizer.step()

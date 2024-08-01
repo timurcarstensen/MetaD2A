@@ -313,7 +313,8 @@ class GeneratorModel(nn.Module):
         mu, logvar = self.enc_g_mu(Hg), self.enc_g_var(Hg)
         return mu, logvar
 
-    def set_encode(self, X):
+    def set_encode(self, X: torch.Tensor):
+        # Runs the set encoder on X (TODO: what is X, the dataset?)
         proto_batch = []
         for x in X:  # X.shape: [32, 400, 512]
             cls_protos = self.intra_setpool(
